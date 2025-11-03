@@ -5,3 +5,5 @@ passlib
 pandas
 email-validator
 requests
+bcrypt
+python-dotenv
