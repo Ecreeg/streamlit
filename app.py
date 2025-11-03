@@ -118,6 +118,9 @@ def release_conn(conn):
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password):
+    if not password:
+        raise ValueError("Password cannot be empty.")
+    password = str(password)[:72]  # bcrypt max length
     return pwd_context.hash(password)
 
 def verify_password(plain, hashed):
@@ -458,8 +461,12 @@ elif page == "Main Translator":
                     ok, err = verify_otp(su_email, otp_val, purpose="signup")
                     if ok:
                         # create user
-                        pw = st.session_state.get("pending_signup_password") or su_password
-                        success, e = create_user(su_email, pw)
+                        pw = st.session_state.get("pending_signup_pass", "")
+                        if not pw:
+                            st.error("Password not found in session. Please sign up again.")
+                        else:
+                            success, e = create_user(su_email, pw)
+
                         if success:
                             st.success("Account created! You are now logged in.")
                             st.session_state["user_email"] = su_email
@@ -632,3 +639,4 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
+
