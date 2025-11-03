@@ -171,9 +171,6 @@ def ensure_tables():
     conn.commit()
     cur.close()
     release_conn(conn)
-
-ensure_tables()
-
 # -------------------- EMAIL OTP --------------------
 OTP_LENGTH = 6
 OTP_TTL_MINUTES = 10
@@ -183,7 +180,6 @@ def gen_otp(n=OTP_LENGTH):
     return "".join(random.choices(string.digits, k=n))
 
 def send_email_async(to_email, subject, body):
-    # Simple synchronous send via smtplib (non-blocking is possible, but Streamlit runs sync)
     try:
         msg = EmailMessage()
         msg["Subject"] = subject
@@ -201,7 +197,7 @@ def send_email_async(to_email, subject, body):
 
 def create_and_send_otp(email, purpose="signup"):
     otp = gen_otp()
-    expires_at = datetime.now(timezone.utc)  # Fixed: use timezone-aware datetime
+    expires_at = datetime.utcnow() + timedelta(minutes=OTP_TTL_MINUTES)  # Use utcnow() for simplicity
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -219,7 +215,7 @@ def create_and_send_otp(email, purpose="signup"):
     return ok, err
 
 def verify_otp(email, otp_value, purpose="signup"):
-    now = datetime.now(timezone.utc)  # Fixed: use timezone-aware datetime
+    now = datetime.utcnow()  # Use utcnow() for simplicity
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -645,3 +641,4 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
+
