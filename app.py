@@ -115,22 +115,25 @@ def release_conn(conn):
     st.session_state.db_pool.putconn(conn)
 
 # -------------------- PASSWORD HASH --------------------
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def hash_password(password):
     if not password:
         raise ValueError("Password cannot be empty.")
-    # Convert to string and truncate to 72 bytes for bcrypt
+    
     password_str = str(password)
-    # Encode to bytes and truncate to 72 bytes, then decode back to string
+    if not password_str:
+        raise ValueError("Password cannot be empty.")
+    
+    # Convert to bytes and truncate to exactly 72 bytes
     password_bytes = password_str.encode('utf-8')
     if len(password_bytes) > 72:
-        password_bytes = password_bytes[:72]
-    password_str = password_bytes.decode('utf-8', errors='ignore')
+        # Truncate to 72 bytes, being careful not to cut in the middle of a multi-byte character
+        truncated_bytes = password_bytes[:72]
+        # Remove any incomplete characters at the end
+        while truncated_bytes and truncated_bytes[-1] & 0xC0 == 0x80:
+            truncated_bytes = truncated_bytes[:-1]
+        password_str = truncated_bytes.decode('utf-8', errors='ignore')
+    
     return pwd_context.hash(password_str)
-
-def verify_password(plain, hashed):
-    return pwd_context.verify(plain, hashed)
 
 # -------------------- DB SCHEMA (run once) --------------------
 def ensure_tables():
@@ -440,22 +443,35 @@ elif page == "Main Translator":
                         st.error("Incorrect password.")
 
         with tab_signup:
-            su_email = st.text_input("Email (for signup)", key="signup_email")
-            su_password = st.text_input("Choose password", type="password", key="signup_password")
-
-            if st.button("Send Signup OTP", use_container_width=True, key="send_signup_otp"):
-                existing = get_user_by_email(su_email)
-                if existing:
-                    st.error("An account already exists with that email. Try logging in or use Forgot Password.")
+    su_email = st.text_input("Email (for signup)", key="signup_email")
+    su_password = st.text_input("Choose password", type="password", key="signup_password")
+    
+    # Password validation - ADD THIS SECTION
+    if su_password:
+        if len(su_password) < 8:
+            st.warning("⚠️ Password should be at least 8 characters")
+        elif len(su_password) > 72:
+            st.warning("⚠️ Password is too long (max 72 characters). It will be truncated.")
+        else:
+            st.success("✅ Password length is good")
+    
+    if st.button("Send Signup OTP", use_container_width=True, key="send_signup_otp"):
+        existing = get_user_by_email(su_email)
+        if existing:
+            st.error("An account already exists with that email. Try logging in or use Forgot Password.")
+        else:
+            # Validate password length before proceeding - ADD THIS VALIDATION
+            if not su_password or len(su_password) < 8:
+                st.error("Please choose a password with at least 8 characters")
+            else:
+                ok, err = create_and_send_otp(su_email, purpose="signup")
+                if ok:
+                    st.success("OTP sent to your email. Check your inbox (and spam).")
+                    st.session_state["pending_signup_email"] = su_email
+                    st.session_state["pending_signup_password"] = su_password
+                    st.session_state["signup_sent_at"] = time.time()
                 else:
-                    ok, err = create_and_send_otp(su_email, purpose="signup")
-                    if ok:
-                        st.success("OTP sent to your email. Check your inbox (and spam).")
-                        st.session_state["pending_signup_email"] = su_email
-                        st.session_state["pending_signup_password"] = su_password
-                        st.session_state["signup_sent_at"] = time.time()
-                    else:
-                        st.error(f"Failed to send OTP: {err}")
+                    st.error(f"Failed to send OTP: {err}")
 
             if st.session_state.get("pending_signup_email") == su_email:
                 otp_val = st.text_input("Enter OTP", key="signup_otp")
@@ -641,4 +657,5 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
+
 
