@@ -10,11 +10,11 @@ import smtplib
 from email.message import EmailMessage
 import random
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone  # Fixed: use timezone-aware datetime
 from passlib.context import CryptContext
 
-# -------------------- DEPENDENCIES --------------------
-# pip install streamlit psycopg2-binary passlib
+# -------------------- DEPRECATION WARNINGS FIXED --------------------
+# Replaced datetime.utcnow() with timezone-aware datetime
 
 # -------------------- APP CONFIG --------------------
 st.set_page_config(page_title="Cross-Culture Humor Mapper", page_icon="🌍", layout="centered")
@@ -120,8 +120,14 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def hash_password(password):
     if not password:
         raise ValueError("Password cannot be empty.")
-    password = str(password)[:72]  # bcrypt max length
-    return pwd_context.hash(password)
+    # Convert to string and truncate to 72 bytes for bcrypt
+    password_str = str(password)
+    # Encode to bytes and truncate to 72 bytes, then decode back to string
+    password_bytes = password_str.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    password_str = password_bytes.decode('utf-8', errors='ignore')
+    return pwd_context.hash(password_str)
 
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
@@ -195,7 +201,7 @@ def send_email_async(to_email, subject, body):
 
 def create_and_send_otp(email, purpose="signup"):
     otp = gen_otp()
-    expires_at = datetime.utcnow() + timedelta(minutes=OTP_TTL_MINUTES)
+    expires_at = datetime.now(timezone.utc)  # Fixed: use timezone-aware datetime
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -213,7 +219,7 @@ def create_and_send_otp(email, purpose="signup"):
     return ok, err
 
 def verify_otp(email, otp_value, purpose="signup"):
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)  # Fixed: use timezone-aware datetime
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -460,21 +466,21 @@ elif page == "Main Translator":
                 if st.button("Verify & Create Account", key="verify_signup_otp"):
                     ok, err = verify_otp(su_email, otp_val, purpose="signup")
                     if ok:
-                        # create user
-                        pw = st.session_state.get("pending_signup_pass", "")
+                        # create user - FIXED: use the correct session state variable
+                        pw = st.session_state.get("pending_signup_password", "")
                         if not pw:
                             st.error("Password not found in session. Please sign up again.")
                         else:
-                            success, e = create_user(su_email, pw)
-
-                        if success:
-                            st.success("Account created! You are now logged in.")
-                            st.session_state["user_email"] = su_email
-                            # cleanup
-                            st.session_state.pop("pending_signup_email", None)
-                            st.session_state.pop("pending_signup_password", None)
-                        else:
-                            st.error(f"Failed to create user: {e}")
+                            success, e = create_user(su_email, pw)  # FIXED: 'success' is now properly defined
+                            
+                            if success:  # FIXED: Now 'success' is defined
+                                st.success("Account created! You are now logged in.")
+                                st.session_state["user_email"] = su_email
+                                # cleanup
+                                st.session_state.pop("pending_signup_email", None)
+                                st.session_state.pop("pending_signup_password", None)
+                            else:
+                                st.error(f"Failed to create user: {e}")
                     else:
                         st.error(f"OTP verify failed: {err}")
 
@@ -639,4 +645,3 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
-
