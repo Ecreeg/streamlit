@@ -1,9 +1,6 @@
 streamlit
 psycopg2-binary
-sqlalchemy
 passlib
-pandas
-email-validator
 requests
 bcrypt
 python-dotenv
