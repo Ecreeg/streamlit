@@ -10,11 +10,8 @@ import smtplib
 from email.message import EmailMessage
 import random
 import string
-from datetime import datetime, timedelta, timezone  # Fixed: use timezone-aware datetime
+from datetime import datetime, timedelta
 from passlib.context import CryptContext
-
-# -------------------- DEPRECATION WARNINGS FIXED --------------------
-# Replaced datetime.utcnow() with timezone-aware datetime
 
 # -------------------- APP CONFIG --------------------
 st.set_page_config(page_title="Cross-Culture Humor Mapper", page_icon="🌍", layout="centered")
@@ -68,11 +65,6 @@ st.markdown(
 )
 
 # -------------------- SECRETS / CONFIG --------------------
-# REQUIRED in streamlit secrets (st.secrets):
-# POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
-# SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, EMAIL_FROM
-# OPENROUTER_API_KEY
-
 try:
     POSTGRES_HOST = st.secrets["POSTGRES_HOST"]
     POSTGRES_PORT = st.secrets.get("POSTGRES_PORT", 5432)
@@ -92,7 +84,6 @@ except Exception as e:
     st.stop()
 
 # -------------------- DB CONNECTION POOL --------------------
-# Create a global connection pool to allow concurrent users
 if "db_pool" not in st.session_state:
     try:
         st.session_state.db_pool = pool.ThreadedConnectionPool(
@@ -115,31 +106,30 @@ def release_conn(conn):
     st.session_state.db_pool.putconn(conn)
 
 # -------------------- PASSWORD HASH --------------------
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 def hash_password(password):
     if not password:
         raise ValueError("Password cannot be empty.")
     
     password_str = str(password)
-    if not password_str:
-        raise ValueError("Password cannot be empty.")
     
-    # Convert to bytes and truncate to exactly 72 bytes
-    password_bytes = password_str.encode('utf-8')
-    if len(password_bytes) > 72:
-        # Truncate to 72 bytes, being careful not to cut in the middle of a multi-byte character
-        truncated_bytes = password_bytes[:72]
-        # Remove any incomplete characters at the end
-        while truncated_bytes and truncated_bytes[-1] & 0xC0 == 0x80:
-            truncated_bytes = truncated_bytes[:-1]
-        password_str = truncated_bytes.decode('utf-8', errors='ignore')
+    # Simple truncation to 72 characters
+    if len(password_str) > 72:
+        password_str = password_str[:72]
     
     return pwd_context.hash(password_str)
+
+def verify_password(plain, hashed):
+    # Also truncate for verification to ensure consistency
+    if plain and len(plain) > 72:
+        plain = plain[:72]
+    return pwd_context.verify(plain, hashed)
 
 # -------------------- DB SCHEMA (run once) --------------------
 def ensure_tables():
     conn = get_conn()
     cur = conn.cursor()
-    # users, otps, translations
     cur.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -174,6 +164,9 @@ def ensure_tables():
     conn.commit()
     cur.close()
     release_conn(conn)
+
+ensure_tables()
+
 # -------------------- EMAIL OTP --------------------
 OTP_LENGTH = 6
 OTP_TTL_MINUTES = 10
@@ -200,7 +193,7 @@ def send_email_async(to_email, subject, body):
 
 def create_and_send_otp(email, purpose="signup"):
     otp = gen_otp()
-    expires_at = datetime.utcnow() + timedelta(minutes=OTP_TTL_MINUTES)  # Use utcnow() for simplicity
+    expires_at = datetime.utcnow() + timedelta(minutes=OTP_TTL_MINUTES)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -218,7 +211,7 @@ def create_and_send_otp(email, purpose="signup"):
     return ok, err
 
 def verify_otp(email, otp_value, purpose="signup"):
-    now = datetime.utcnow()  # Use utcnow() for simplicity
+    now = datetime.utcnow()
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -313,7 +306,7 @@ def get_user_translations_db(user_email, limit=50):
     release_conn(conn)
     return rows
 
-# -------------------- FREE MODELS LIST (unchanged) --------------------
+# -------------------- FREE MODELS LIST --------------------
 FREE_MODELS = [
     "mistralai/mistral-small-3.2-24b-instruct:free",
     "meta-llama/llama-3-8b-instruct:free",
@@ -325,7 +318,7 @@ FREE_MODELS = [
     "undi95/toppy-m-7b:free"
 ]
 
-# -------------------- SMART TRANSLATE FUNCTION (uses OpenRouter) --------------------
+# -------------------- SMART TRANSLATE FUNCTION --------------------
 def smart_translate_humor(input_text, target_culture, max_attempts=3):
     prompt = (
         f"Translate or adapt the following joke or phrase into humor suitable for {target_culture} culture. "
@@ -443,35 +436,35 @@ elif page == "Main Translator":
                         st.error("Incorrect password.")
 
         with tab_signup:
-    su_email = st.text_input("Email (for signup)", key="signup_email")
-    su_password = st.text_input("Choose password", type="password", key="signup_password")
-    
-    # Password validation - ADD THIS SECTION
-    if su_password:
-        if len(su_password) < 8:
-            st.warning("⚠️ Password should be at least 8 characters")
-        elif len(su_password) > 72:
-            st.warning("⚠️ Password is too long (max 72 characters). It will be truncated.")
-        else:
-            st.success("✅ Password length is good")
-    
-    if st.button("Send Signup OTP", use_container_width=True, key="send_signup_otp"):
-        existing = get_user_by_email(su_email)
-        if existing:
-            st.error("An account already exists with that email. Try logging in or use Forgot Password.")
-        else:
-            # Validate password length before proceeding - ADD THIS VALIDATION
-            if not su_password or len(su_password) < 8:
-                st.error("Please choose a password with at least 8 characters")
-            else:
-                ok, err = create_and_send_otp(su_email, purpose="signup")
-                if ok:
-                    st.success("OTP sent to your email. Check your inbox (and spam).")
-                    st.session_state["pending_signup_email"] = su_email
-                    st.session_state["pending_signup_password"] = su_password
-                    st.session_state["signup_sent_at"] = time.time()
+            su_email = st.text_input("Email (for signup)", key="signup_email")
+            su_password = st.text_input("Choose password", type="password", key="signup_password")
+            
+            # Password validation
+            if su_password:
+                if len(su_password) < 8:
+                    st.warning("⚠️ Password should be at least 8 characters")
+                elif len(su_password) > 72:
+                    st.warning("⚠️ Password is too long (max 72 characters). It will be truncated.")
                 else:
-                    st.error(f"Failed to send OTP: {err}")
+                    st.success("✅ Password length is good")
+            
+            if st.button("Send Signup OTP", use_container_width=True, key="send_signup_otp"):
+                existing = get_user_by_email(su_email)
+                if existing:
+                    st.error("An account already exists with that email. Try logging in or use Forgot Password.")
+                else:
+                    # Validate password length before proceeding
+                    if not su_password or len(su_password) < 8:
+                        st.error("Please choose a password with at least 8 characters")
+                    else:
+                        ok, err = create_and_send_otp(su_email, purpose="signup")
+                        if ok:
+                            st.success("OTP sent to your email. Check your inbox (and spam).")
+                            st.session_state["pending_signup_email"] = su_email
+                            st.session_state["pending_signup_password"] = su_password
+                            st.session_state["signup_sent_at"] = time.time()
+                        else:
+                            st.error(f"Failed to send OTP: {err}")
 
             if st.session_state.get("pending_signup_email") == su_email:
                 otp_val = st.text_input("Enter OTP", key="signup_otp")
@@ -554,7 +547,7 @@ elif page == "Main Translator":
                         st.success("✅ Culturally adapted humor:")
                         st.markdown(f"### {translated_text}")
 
-                        # Text-to-speech button (same JS approach)
+                        # Text-to-speech button
                         lang_map = {
                             "indian": "hi-IN",
                             "japanese": "ja-JP",
@@ -657,5 +650,3 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
-
-
