@@ -10,8 +10,9 @@ import smtplib
 from email.message import EmailMessage
 import random
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
+import bcrypt
 
 # -------------------- APP CONFIG --------------------
 st.set_page_config(page_title="Cross-Culture Humor Mapper", page_icon="🌍", layout="centered")
@@ -105,26 +106,32 @@ def get_conn():
 def release_conn(conn):
     st.session_state.db_pool.putconn(conn)
 
-# -------------------- PASSWORD HASH --------------------
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+# -------------------- PASSWORD HASH - SIMPLIFIED --------------------
 def hash_password(password):
     if not password:
         raise ValueError("Password cannot be empty.")
     
     password_str = str(password)
     
-    # Simple truncation to 72 characters
-    if len(password_str) > 72:
-        password_str = password_str[:72]
+    # Convert to bytes and ensure it's not longer than 72 bytes
+    password_bytes = password_str.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
     
-    return pwd_context.hash(password_str)
+    # Use bcrypt directly instead of passlib to avoid the version detection issue
+    return bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
 
 def verify_password(plain, hashed):
-    # Also truncate for verification to ensure consistency
-    if plain and len(plain) > 72:
-        plain = plain[:72]
-    return pwd_context.verify(plain, hashed)
+    if not plain:
+        return False
+    
+    plain_str = str(plain)
+    plain_bytes = plain_str.encode('utf-8')
+    if len(plain_bytes) > 72:
+        plain_bytes = plain_bytes[:72]
+    
+    hashed_bytes = hashed.encode('utf-8')
+    return bcrypt.checkpw(plain_bytes, hashed_bytes)
 
 # -------------------- DB SCHEMA (run once) --------------------
 def ensure_tables():
@@ -193,7 +200,7 @@ def send_email_async(to_email, subject, body):
 
 def create_and_send_otp(email, purpose="signup"):
     otp = gen_otp()
-    expires_at = datetime.utcnow() + timedelta(minutes=OTP_TTL_MINUTES)
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=OTP_TTL_MINUTES)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -211,7 +218,7 @@ def create_and_send_otp(email, purpose="signup"):
     return ok, err
 
 def verify_otp(email, otp_value, purpose="signup"):
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -226,6 +233,11 @@ def verify_otp(email, otp_value, purpose="signup"):
         release_conn(conn)
         return False, "OTP not found."
     otp_id, expires_at, consumed = row
+    
+    # Ensure both datetimes are timezone-aware for comparison
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
     if consumed:
         cur.close()
         release_conn(conn)
@@ -390,13 +402,6 @@ def smart_translate_humor(input_text, target_culture, max_attempts=3):
 
     return None, None, attempts
 
-# -------------------- AUTH UX HELPERS --------------------
-def start_signup_flow():
-    st.session_state["signup_step"] = "enter_email"
-
-def start_reset_flow():
-    st.session_state["reset_step"] = "enter_email"
-
 # -------------------- PAGE LAYOUT / NAV --------------------
 st.sidebar.title("🌍 Navigation")
 page = st.sidebar.radio("Go to", ["Welcome", "Main Translator", "Translation History", "Settings & Profile"])
@@ -432,6 +437,7 @@ elif page == "Main Translator":
                     if verify_password(password, password_hash):
                         st.session_state["user_email"] = email
                         st.success(f"Logged in as {email}")
+                        st.experimental_rerun()
                     else:
                         st.error("Incorrect password.")
 
@@ -471,19 +477,20 @@ elif page == "Main Translator":
                 if st.button("Verify & Create Account", key="verify_signup_otp"):
                     ok, err = verify_otp(su_email, otp_val, purpose="signup")
                     if ok:
-                        # create user - FIXED: use the correct session state variable
+                        # create user
                         pw = st.session_state.get("pending_signup_password", "")
                         if not pw:
                             st.error("Password not found in session. Please sign up again.")
                         else:
-                            success, e = create_user(su_email, pw)  # FIXED: 'success' is now properly defined
+                            success, e = create_user(su_email, pw)
                             
-                            if success:  # FIXED: Now 'success' is defined
+                            if success:
                                 st.success("Account created! You are now logged in.")
                                 st.session_state["user_email"] = su_email
                                 # cleanup
                                 st.session_state.pop("pending_signup_email", None)
                                 st.session_state.pop("pending_signup_password", None)
+                                st.experimental_rerun()
                             else:
                                 st.error(f"Failed to create user: {e}")
                     else:
@@ -513,6 +520,7 @@ elif page == "Main Translator":
                         update_user_password(rs_email, new_pw)
                         st.success("Password updated. You may now log in.")
                         st.session_state.pop("pending_reset_email", None)
+                        st.experimental_rerun()
                     else:
                         st.error(f"OTP verify failed: {err}")
 
