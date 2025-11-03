@@ -437,7 +437,7 @@ elif page == "Main Translator":
                     if verify_password(password, password_hash):
                         st.session_state["user_email"] = email
                         st.success(f"Logged in as {email}")
-                        st.experimental_rerun()
+                        st.rerun()
                     else:
                         st.error("Incorrect password.")
 
@@ -490,7 +490,7 @@ elif page == "Main Translator":
                                 # cleanup
                                 st.session_state.pop("pending_signup_email", None)
                                 st.session_state.pop("pending_signup_password", None)
-                                st.experimental_rerun()
+                                st.rerun()
                             else:
                                 st.error(f"Failed to create user: {e}")
                     else:
@@ -520,7 +520,7 @@ elif page == "Main Translator":
                         update_user_password(rs_email, new_pw)
                         st.success("Password updated. You may now log in.")
                         st.session_state.pop("pending_reset_email", None)
-                        st.experimental_rerun()
+                        st.rerun()
                     else:
                         st.error(f"OTP verify failed: {err}")
 
@@ -531,10 +531,10 @@ elif page == "Main Translator":
         with col1:
             if st.button("Logout", use_container_width=True):
                 st.session_state.pop("user_email", None)
-                st.experimental_rerun()
+                st.rerun()
         with col2:
             if st.button("View History", use_container_width=True):
-                st.experimental_rerun()
+                st.rerun()
         st.divider()
 
         st.subheader("Translate a joke")
@@ -658,3 +658,4 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
+
