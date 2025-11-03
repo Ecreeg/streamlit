@@ -1,5 +1,7 @@
 streamlit
-sqlalchemy
 psycopg2-binary
+sqlalchemy
+passlib
 pandas
 email-validator
+requests
