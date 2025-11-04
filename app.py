@@ -26,14 +26,80 @@ st.markdown(
       --card: #fff6ef;        /* card background */
       --accent: #ffa94d;      /* light orange accent */
       --accent-2: #ffd6a5;    /* lighter accent */
-      --text: #2b2b2b;
-      --muted: #6b6b6b;
+      --text: #000000;        /* CHANGED: Pure black text */
+      --muted: #333333;       /* CHANGED: Dark gray for muted text */
       --success: #16a34a;
     }
     .stApp {
       background-color: var(--bg);
-      color: var(--text);
+      color: var(--text);     /* All text color */
     }
+    
+    /* Main text elements */
+    .stMarkdown, .stMarkdown p, .stMarkdown div {
+        color: #000000 !important;
+    }
+    
+    /* Headers */
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
+    .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #000000 !important;
+    }
+    
+    /* Input labels and text */
+    .stTextInput label, .stTextArea label, .stSelectbox label,
+    .stNumberInput label, .stTextInput input, .stTextArea textarea {
+        color: #000000 !important;
+    }
+    
+    /* Button text */
+    .stButton button {
+        color: #000000 !important;
+        font-weight: 500;
+    }
+    
+    /* Radio buttons and checkboxes */
+    .stRadio label, .stCheckbox label {
+        color: #000000 !important;
+    }
+    
+    /* Sidebar text */
+    .stSidebar .stMarkdown, .stSidebar p, .stSidebar div {
+        color: #000000 !important;
+    }
+    
+    /* Info, success, warning, error messages */
+    .stAlert, .stInfo, .stSuccess, .stWarning, .stError {
+        color: #000000 !important;
+    }
+    .stAlert [data-testid="stMarkdownContainer"], 
+    .stInfo [data-testid="stMarkdownContainer"],
+    .stSuccess [data-testid="stMarkdownContainer"],
+    .stWarning [data-testid="stMarkdownContainer"],
+    .stError [data-testid="stMarkdownContainer"] {
+        color: #000000 !important;
+    }
+    
+    /* Captions and small text */
+    .stCaption, .stCode {
+        color: #000000 !important;
+    }
+    
+    /* Tab text */
+    .stTabs [data-baseweb="tab"] {
+        color: #000000 !important;
+    }
+    
+    /* Dataframe and table text */
+    .stDataFrame, .stTable {
+        color: #000000 !important;
+    }
+    
+    /* Expander text */
+    .streamlit-expanderHeader {
+        color: #000000 !important;
+    }
+    
     .css-18e3th9 { background-color: transparent; } /* main container tweak */
     .stButton>button {
       background: linear-gradient(90deg,var(--accent),var(--accent-2));
@@ -42,10 +108,14 @@ st.markdown(
       padding: 8px 12px;
       border-radius: 8px;
     }
+    .stButton>button span {
+        color: white !important; /* Keep button text white for contrast */
+    }
     .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>select {
       background: white;
       border-radius: 8px;
       border: 1px solid rgba(0,0,0,0.08);
+      color: #000000 !important; /* Input text color */
     }
     .stSidebar .css-1w0ym84 {
       background: linear-gradient(180deg, #fff4e6, #fffaf0);
@@ -59,6 +129,12 @@ st.markdown(
       padding: 14px;
       border-radius: 10px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      color: #000000 !important;
+    }
+    
+    /* Ensure all Streamlit text elements are black */
+    * {
+        color: #000000 !important;
     }
     </style>
     """,
@@ -658,4 +734,5 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
+
 
