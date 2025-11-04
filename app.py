@@ -35,6 +35,19 @@ st.markdown(
       color: var(--text);
     }
     
+    /* CHECKBOX TEXT - FIXED */
+    .stCheckbox label, 
+    .stCheckbox span,
+    .stCheckbox div,
+    .stCheckbox p {
+        color: #000000 !important;
+    }
+    
+    /* Checkbox box */
+    .stCheckbox [data-baseweb="checkbox"] {
+        border-color: #000000 !important;
+    }
+    
     /* Text area input text */
     .stTextArea textarea {
         color: #000000 !important;
@@ -43,16 +56,6 @@ st.markdown(
     /* Text area label */
     .stTextArea label {
         color: #000000 !important;
-    }
-    
-    /* Checkbox text */
-    .stCheckbox label {
-        color: #000000 !important;
-    }
-    
-    /* Checkbox box */
-    .stCheckbox [data-baseweb="checkbox"] {
-        border-color: #000000 !important;
     }
     
     /* Selectbox text */
@@ -93,6 +96,11 @@ st.markdown(
     .stButton button {
         color: #000000 !important;
         font-weight: 500;
+    }
+    
+    /* Button span text (keep white for contrast) */
+    .stButton button span {
+        color: white !important;
     }
     
     /* Radio buttons */
@@ -144,9 +152,6 @@ st.markdown(
       border: none;
       padding: 8px 12px;
       border-radius: 8px;
-    }
-    .stButton>button span {
-        color: white !important; /* Keep button text white for contrast */
     }
     .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>select {
       background: white;
@@ -765,6 +770,7 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
+
 
 
 
