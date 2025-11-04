@@ -26,13 +26,51 @@ st.markdown(
       --card: #fff6ef;        /* card background */
       --accent: #ffa94d;      /* light orange accent */
       --accent-2: #ffd6a5;    /* lighter accent */
-      --text: #000000;        /* CHANGED: Pure black text */
-      --muted: #333333;       /* CHANGED: Dark gray for muted text */
+      --text: #000000;        /* Pure black text */
+      --muted: #333333;       /* Dark gray for muted text */
       --success: #16a34a;
     }
     .stApp {
       background-color: var(--bg);
-      color: var(--text);     /* All text color */
+      color: var(--text);
+    }
+    
+    /* Text area input text */
+    .stTextArea textarea {
+        color: #000000 !important;
+    }
+    
+    /* Text area label */
+    .stTextArea label {
+        color: #000000 !important;
+    }
+    
+    /* Checkbox text */
+    .stCheckbox label {
+        color: #000000 !important;
+    }
+    
+    /* Checkbox box */
+    .stCheckbox [data-baseweb="checkbox"] {
+        border-color: #000000 !important;
+    }
+    
+    /* Selectbox text */
+    .stSelectbox label {
+        color: #000000 !important;
+    }
+    
+    .stSelectbox select {
+        color: #000000 !important;
+    }
+    
+    /* Number input text */
+    .stNumberInput label {
+        color: #000000 !important;
+    }
+    
+    .stNumberInput input {
+        color: #000000 !important;
     }
     
     /* Main text elements */
@@ -47,8 +85,7 @@ st.markdown(
     }
     
     /* Input labels and text */
-    .stTextInput label, .stTextArea label, .stSelectbox label,
-    .stNumberInput label, .stTextInput input, .stTextArea textarea {
+    .stTextInput label, .stTextInput input {
         color: #000000 !important;
     }
     
@@ -58,8 +95,8 @@ st.markdown(
         font-weight: 500;
     }
     
-    /* Radio buttons and checkboxes */
-    .stRadio label, .stCheckbox label {
+    /* Radio buttons */
+    .stRadio label {
         color: #000000 !important;
     }
     
@@ -100,7 +137,7 @@ st.markdown(
         color: #000000 !important;
     }
     
-    .css-18e3th9 { background-color: transparent; } /* main container tweak */
+    .css-18e3th9 { background-color: transparent; }
     .stButton>button {
       background: linear-gradient(90deg,var(--accent),var(--accent-2));
       color: white;
@@ -115,7 +152,7 @@ st.markdown(
       background: white;
       border-radius: 8px;
       border: 1px solid rgba(0,0,0,0.08);
-      color: #000000 !important; /* Input text color */
+      color: #000000 !important;
     }
     .stSidebar .css-1w0ym84 {
       background: linear-gradient(180deg, #fff4e6, #fffaf0);
@@ -131,16 +168,10 @@ st.markdown(
       box-shadow: 0 1px 4px rgba(0,0,0,0.04);
       color: #000000 !important;
     }
-    
-    /* Ensure all Streamlit text elements are black */
-    * {
-        color: #000000 !important;
-    }
     </style>
     """,
     unsafe_allow_html=True
 )
-
 # -------------------- SECRETS / CONFIG --------------------
 try:
     POSTGRES_HOST = st.secrets["POSTGRES_HOST"]
@@ -734,5 +765,6 @@ elif page == "Settings & Profile":
 # -------------------- FOOTER --------------------
 st.markdown("---")
 st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
+
 
 
