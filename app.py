@@ -779,7 +779,3 @@ elif page == "Settings & Profile":
             st.experimental_rerun()
     else:
         st.warning("Please log in to view your profile settings. Go to Main Translator to sign in or sign up.")
-
-# -------------------- FOOTER --------------------
-st.markdown("---")
-st.caption("Type emails manually | Retry after 2 mins if AI fails | Secure OTP Authentication")
