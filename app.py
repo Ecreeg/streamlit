@@ -452,14 +452,14 @@ def get_user_translations_db(user_email, limit=50):
 FREE_MODELS = [
     "mistralai/mistral-small-3.2-24b-instruct:free",
     "meta-llama/llama-3-8b-instruct:free",
-    "google/gemma-7b-it:free"
+    "openai/gpt-oss-20b:free"
 ]
 
 # -------------------- SMART TRANSLATE FUNCTION --------------------
 def smart_translate_humor(input_text, target_culture, max_attempts=3):
     prompt = (
         f"Translate or adapt the following joke or phrase into humor suitable for {target_culture} culture. "
-        f"Maintain the spirit of the joke but make it funny and understandable to that culture.\n\n"
+        f"Maintain the spirit of the joke and make it funny and understandable to that culture.\n\n"
         f"Input: {input_text}\n\nTranslated Humor:"
     )
 
@@ -544,7 +544,7 @@ if page == "Welcome":
     **Available AI Models:**
     1. **Mistral Small** - Fast & Reliable
     2. **Llama 3** - Creative & Contextual  
-    3. **Gemma 7B** - Balanced & Accurate
+    3. **openai/gpt-oss-20b:free
     
     **Quick Steps:**
     1. **Sign Up**: Create account with email OTP verification
@@ -797,4 +797,5 @@ elif page == "Settings & Profile":
             st.experimental_rerun()
     else:
         st.warning("Please log in to view your profile settings. Go to Main Translator to sign in or sign up.")
+
 
