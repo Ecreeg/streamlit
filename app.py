@@ -25,9 +25,6 @@ st.set_page_config(
         'About': None
     }
 )
-.stApp header a[href*="github"] {
-    display: none !important;
-}
 # -------------------- THEME / LIGHT ORANGE UI (CSS) --------------------
 st.markdown(
     """
@@ -807,6 +804,7 @@ elif page == "Settings & Profile":
             st.experimental_rerun()
     else:
         st.warning("Please log in to view your profile settings. Go to Main Translator to sign in or sign up.")
+
 
 
 
