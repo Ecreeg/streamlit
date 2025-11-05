@@ -15,8 +15,16 @@ from passlib.context import CryptContext
 import bcrypt
 
 # -------------------- APP CONFIG --------------------
-st.set_page_config(page_title="Cross-Culture Humor Mapper", page_icon="🌍", layout="centered")
-
+st.set_page_config(
+    page_title="Cross-Culture Humor Mapper", 
+    page_icon="🌍", 
+    layout="centered",
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': None
+    }
+)
 # -------------------- THEME / LIGHT ORANGE UI (CSS) --------------------
 st.markdown(
     """
@@ -796,6 +804,7 @@ elif page == "Settings & Profile":
             st.experimental_rerun()
     else:
         st.warning("Please log in to view your profile settings. Go to Main Translator to sign in or sign up.")
+
 
 
 
