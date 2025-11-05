@@ -199,6 +199,9 @@ st.markdown(
       box-shadow: 0 1px 4px rgba(0,0,0,0.04);
       color: #000000 !important;
     }
+    .stApp header a[href*="github"] {
+      display: none !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -804,6 +807,7 @@ elif page == "Settings & Profile":
             st.experimental_rerun()
     else:
         st.warning("Please log in to view your profile settings. Go to Main Translator to sign in or sign up.")
+
 
 
 
