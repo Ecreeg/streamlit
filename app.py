@@ -522,9 +522,21 @@ page = st.sidebar.radio("Go to", ["Welcome", "Main Translator", "Translation His
 if page == "Welcome":
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.header("🌍 Cross-Culture Humor Mapper")
-    st.write("Translate and adapt humor between cultures with AI — now with OTP signup and PostgreSQL storage.")
+    st.write("**Important Instructions:**")
+    st.markdown("""
+    📝 **Login Tip**: When logging in, please type your email manually instead of using copy-paste for better reliability
+    
+    ⚠️ **AI Model Notice**: If the translation fails or doesn't generate, please wait 2 minutes and try again - free AI models can get busy during peak times
+    
+    **Quick Steps:**
+    1. **Sign Up**: Create account with email OTP verification
+    2. **Login**: Type email manually (no copy-paste)
+    3. **Translate**: Enter joke and target culture
+    4. **Retry if needed**: Wait 2 mins if AI models fail
+    5. **Save & Listen**: Store translations and use text-to-speech
+    """)
     st.markdown("</div>", unsafe_allow_html=True)
-    st.caption("Light theme | Email OTP signup & password reset | Multi-user ready")
+    st.caption("🔐 Manual Email Entry Recommended | ⏳ 2-Min Retry for AI Issues | 🌍 Cultural Adaptation")
 
 # -------------------- MAIN TRANSLATOR --------------------
 elif page == "Main Translator":
@@ -721,13 +733,14 @@ elif page == "Main Translator":
                         for attempt in attempts:
                             st.write(f"- {attempt}")
                         st.info(
-                            """
-                            **💡 What to do now:**
-                            - Try a shorter or simpler joke
-                            - Reduce the number of models to try
-                            - Free AI models often get busy during peak times
-                            """
-                        )
+                                 """
+                                 **💡 What to do now:**
+                                 - Wait 2 minutes and try again
+                                 - Try a shorter or simpler joke
+                                 - Reduce the number of models to try
+                                 - Free AI models often get busy during peak times
+                                 """
+                                )
 
         if show_debug:
             st.divider()
@@ -769,8 +782,4 @@ elif page == "Settings & Profile":
 
 # -------------------- FOOTER --------------------
 st.markdown("---")
-st.caption("Powered by multiple free AI models | Email OTP signup & reset | PostgreSQL for concurrency")
-
-
-
-
+st.caption("Type emails manually | Retry after 2 mins if AI fails | Secure OTP Authentication")
