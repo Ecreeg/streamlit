@@ -452,8 +452,9 @@ def get_user_translations_db(user_email, limit=50):
 # Trusted free models:
 FREE_MODELS = [
     "mistralai/mistral-small-3.2-24b-instruct:free",  # Verified by Mistral AI
-    "meta-llama/llama-3-8b-instruct:free",            # Verified by Meta
-    "undi95/toppy-m-7b:free",                         # Community verified
+    "mistralai/mistral-tiny:free", 
+    "mistralai/mistral-small-22b-preview:free"        #newer version
+
 ]
 
 # -------------------- SMART TRANSLATE FUNCTION --------------------
@@ -544,8 +545,8 @@ if page == "Welcome":
     
     **Available AI Models:**
     1. **Mistral Small** - Fast & Reliable
-    2. **Llama 3** - Creative & Contextual  
-    3. **undi95** - Balanced & Accurate
+    2. **Mistral Tiny** - mostly available 
+    3. **Mistral 22b** - newer version
     
     **Quick Steps:**
     1. **Sign Up**: Create account with email OTP verification
@@ -798,6 +799,7 @@ elif page == "Settings & Profile":
             st.experimental_rerun()
     else:
         st.warning("Please log in to view your profile settings. Go to Main Translator to sign in or sign up.")
+
 
 
 
