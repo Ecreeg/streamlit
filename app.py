@@ -35,6 +35,29 @@ st.markdown(
       color: var(--text);
     }
     
+    /* SIDEBAR NAVIGATION TEXT - ORANGE COLOR */
+    .stSidebar .stMarkdown,
+    .stSidebar h1,
+    .stSidebar h2,
+    .stSidebar h3,
+    .stSidebar div,
+    .stSidebar span,
+    .stSidebar p {
+        color: #ffa94d !important;
+    }
+    
+    /* Radio button labels in sidebar */
+    .stSidebar .stRadio label,
+    .stSidebar .stRadio div,
+    .stSidebar .stRadio span {
+        color: #ffa94d !important;
+    }
+    
+    /* Radio button selected dot */
+    .stSidebar [data-testid="stRadio"] [role="radiogroup"] [class*="selected"] {
+        background-color: #ffa94d !important;
+    }
+    
     /* CHECKBOX TEXT - FIXED */
     .stCheckbox label, 
     .stCheckbox span,
@@ -105,11 +128,6 @@ st.markdown(
     
     /* Radio buttons */
     .stRadio label {
-        color: #000000 !important;
-    }
-    
-    /* Sidebar text */
-    .stSidebar .stMarkdown, .stSidebar p, .stSidebar div {
         color: #000000 !important;
     }
     
@@ -779,3 +797,4 @@ elif page == "Settings & Profile":
             st.experimental_rerun()
     else:
         st.warning("Please log in to view your profile settings. Go to Main Translator to sign in or sign up.")
+
