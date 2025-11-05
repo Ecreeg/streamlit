@@ -452,12 +452,7 @@ def get_user_translations_db(user_email, limit=50):
 FREE_MODELS = [
     "mistralai/mistral-small-3.2-24b-instruct:free",
     "meta-llama/llama-3-8b-instruct:free",
-    "google/gemma-7b-it:free",
-    "nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free",
-    "google/gemma-2b-it:free",
-    "meta-llama/llama-2-13b-chat:free",
-    "microsoft/wizardlm-2-8x22b:free",
-    "undi95/toppy-m-7b:free"
+    "google/gemma-7b-it:free"
 ]
 
 # -------------------- SMART TRANSLATE FUNCTION --------------------
@@ -546,6 +541,11 @@ if page == "Welcome":
     
     ⚠️ **AI Model Notice**: If the translation fails or doesn't generate, please wait 2 minutes and try again - free AI models can get busy during peak times
     
+    **Available AI Models:**
+    1. **Mistral Small** - Fast & Reliable
+    2. **Llama 3** - Creative & Contextual  
+    3. **Gemma 7B** - Balanced & Accurate
+    
     **Quick Steps:**
     1. **Sign Up**: Create account with email OTP verification
     2. **Login**: Type email manually (no copy-paste)
@@ -554,7 +554,7 @@ if page == "Welcome":
     5. **Save & Listen**: Store translations and use text-to-speech
     """)
     st.markdown("</div>", unsafe_allow_html=True)
-    st.caption("🔐 Manual Email Entry Recommended | ⏳ 2-Min Retry for AI Issues | 🌍 Cultural Adaptation")
+    st.caption("🔐 Manual Email Entry | ⏳ 2-Min Retry | 🤖 Multiple AI Models | 🌍 Cultural Adaptation")
 
 # -------------------- MAIN TRANSLATOR --------------------
 elif page == "Main Translator":
