@@ -451,7 +451,7 @@ def get_user_translations_db(user_email, limit=50):
 FREE_MODELS = [
     "mistralai/mistral-7b-instruct:free",           # This definitely works
     "huggingfaceh4/zephyr-7b-beta:free",            # Very reliable
-    "openchat/openchat-7b:free",                    # Always available
+    "deepseek/deepseek-coder-33b-instruct:free",    # DeepSeek Coder - Good for creative tasks
 ]
 
 # -------------------- SMART TRANSLATE FUNCTION --------------------
@@ -543,7 +543,7 @@ if page == "Welcome":
     **Available AI Models:**
     1. **Mistral Small** - Fast & Reliable
     2. **huggingface** - Very reliable
-    3. **openchat** - mostly available
+    3. **deepseek-coder** - Good for creative tasks
     
     **Quick Steps:**
     1. **Sign Up**: Create account with email OTP verification
@@ -796,6 +796,7 @@ elif page == "Settings & Profile":
             st.experimental_rerun()
     else:
         st.warning("Please log in to view your profile settings. Go to Main Translator to sign in or sign up.")
+
 
 
 
